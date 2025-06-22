@@ -11,7 +11,7 @@ import * as joi from 'joi';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
-        APP_NAME: joi.string().default('Whitshee'),
+        APP_NAME: joi.string().default('Whitney'),
       }),
     }),
     HelloModule,
