@@ -8,46 +8,37 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { Post as PostInterface } from './interfaces/post.interface';
+import { CreatePostDto } from './dto/create-post.dto';
+import { Post as postEntity } from './interfaces/post.interface';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postService: PostsService) {}
 
   @Get()
-  findAll(@Query('search') search?: string): PostInterface[] {
-    const extractAllPosts = this.postService.findAll();
-
-    if (search) {
-      return extractAllPosts.filter((singlePost) =>
-        singlePost.title.toLowerCase().includes(search.toLowerCase()),
-      );
-    }
-
-    return extractAllPosts;
+  async findAll(): Promise<postEntity[]> {
+    return this.postService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): PostInterface {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<postEntity> {
     return this.postService.findOne(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(
-    @Body() createPostData: Omit<PostInterface, 'id' | 'createdAt'>,
-  ): PostInterface {
+  async create(@Body() createPostData: CreatePostDto): Promise<postEntity> {
     return this.postService.create(createPostData);
   }
 
   @Put(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updatePostData: Partial<Omit<PostInterface, 'id' | 'createdAt'>>,
-  ): PostInterface {
+    @Body() updatePostData: UpdatePostDto,
+  ): Promise<postEntity> {
     return this.postService.update(id, updatePostData);
   }
 }
