@@ -1,7 +1,10 @@
+import { User } from 'src/auth/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
+  ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -18,8 +21,8 @@ export class Posts {
   @Column({ type: 'text' })
   content: string;
 
-  @Column()
-  authorName: string;
+  @ManyToOne(() => User, (user) => user.posts)
+  author: User;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -5,6 +5,7 @@ import { Posts } from './entities/post.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class PostsService {
@@ -13,12 +14,17 @@ export class PostsService {
     private postRepository: Repository<Posts>,
   ) {}
 
-  async findAll(): Promise<Post[]> {
-    return this.postRepository.find();
+  async findAll(): Promise<Posts[]> {
+    return this.postRepository.find({
+      relations: ['authorName'],
+    });
   }
 
-  async findOne(id: number): Promise<Post> {
-    const singlePost = await this.postRepository.findOneBy({ id });
+  async findOne(id: number): Promise<Posts> {
+    const singlePost = await this.postRepository.findOne({
+      where: { id },
+      relations: ['authorName'],
+    });
 
     if (!singlePost) {
       throw new NotFoundException(`Post with ID ${id} can't seem to be found`);
@@ -30,12 +36,12 @@ export class PostsService {
     const newPost: Post = this.postRepository.create({
       title: createPostData.title,
       content: createPostData.content,
-      authorName: createPostData.authorName,
+      author: User,
     });
     return this.postRepository.save(newPost);
   }
 
-  async update(id: number, updatePostData: UpdatePostDto): Promise<Post> {
+  async update(id: number, updatePostData: UpdatePostDto): Promise<Posts> {
     const findPostToEdit = await this.findOne(id);
 
     if (!findPostToEdit) {
@@ -46,9 +52,6 @@ export class PostsService {
     }
     if (updatePostData.content) {
       findPostToEdit.content = updatePostData.content;
-    }
-    if (updatePostData.authorName) {
-      findPostToEdit.authorName = updatePostData.authorName;
     }
 
     return this.postRepository.save(findPostToEdit);
